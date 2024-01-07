@@ -1,0 +1,35 @@
+---
+- name: test
+  hosts: test
+  become: yes
+
+  vars:
+    webserver: tree
+
+  tasks:
+  - name: install var value
+    yum:
+      name: "{{ webserver }}"
+      state: latest
+
+  - name: Remove multiple users
+    user:
+      name: "{{ item }}"
+      state: absent
+      remove: yes
+    loop:
+      - testa
+      - testb
+      - testc
+    notify:
+      - test2
+
+  - name: copy config
+    copy:
+      src: /etc/ansible/test.txt
+      dest: "{{ config }}"
+    when: config is defined
+
+  handlers:
+  - name: test2
+    ping:

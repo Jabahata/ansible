@@ -1,0 +1,14 @@
+---
+- name: test
+  hosts: test
+  become: yes
+
+  vars:
+    webserver: htop
+
+  tasks:
+  - name: install package
+    yum:
+      name: "{{ webserver }}"
+      state: latest
+    ignore_errors: yes

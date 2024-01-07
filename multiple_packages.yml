@@ -1,0 +1,20 @@
+---
+- name: Install Packages on CentOS 7
+  hosts: test
+  become: yes
+
+  tasks:
+    - name: Update package cache
+      yum:
+        name: '*'
+        state: latest
+
+    - name: Install required packages
+      yum:
+        name:
+          - htop
+          - tree
+          - net-tools
+          - source-highlight
+          - iotop
+        state: present

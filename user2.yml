@@ -1,0 +1,24 @@
+---
+- name: test
+  hosts: test
+  become: yes
+
+  vars:
+    login_users:
+    - test1
+    - test2
+    - test3
+
+  tasks:
+  - name: copy config
+    copy:
+      src: /etc/ansible/test.txt
+      dest: "{{ config }}"
+    when: config is defined
+
+  - name: create users with vars
+    user:
+      name: "{{ item }}"
+    with_items: "{{ login_users }}"
+
+
