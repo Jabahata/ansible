@@ -1,0 +1,25 @@
+$TTL 1D
+@       IN SOA                          dns-server-55.ziyotek.local. root.dns-server-55.ziyotek.local. (
+                                        2024020301      ; serial
+                                        1D              ; refresh
+                                        1H              ; retry
+                                        1W              ; expire
+                                        3H )            ; minimum
+
+; DNS servers
+        IN      NS      dns-server-55.ziyotek.local.
+        IN      NS      dns-server-56.ziyotek.local.
+
+; PTR records for DNS clients
+50      IN      PTR     ntp-server-50.ziyotek.local.
+51      IN      PTR     ntp-server-51.ziyotek.local.
+
+55      IN      PTR     dns-server-55.ziyotek.local.
+56      IN      PTR     dns-server-56.ziyotek.local.
+
+60      IN      PTR     web-server-60.ziyotek.local.
+61      IN      PTR     web-server-61.ziyotek.local.
+62      IN      PTR     web-load-62.ziyotek.local.
+
+65      IN      PTR     db-server-65.ziyotek.local.
+70      IN      PTR     docker-server-70.ziyotek.local.

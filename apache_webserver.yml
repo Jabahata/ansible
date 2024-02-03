@@ -1,0 +1,50 @@
+---
+- name: Installing webserver
+  hosts: ntp
+  become: yes
+  vars:
+    ap: "httpd"
+  tasks:
+    - name: Check if apache installed
+      stat:
+        path: "/usr/sbin/{{ ap }}"
+      register: apache_check
+
+    - name: Remove apache if installed
+      yum:
+        name: "{{ ap }}"
+        state: absent
+      when: apache_check.stat.exists
+
+    - name: Debugging
+      debug:
+        var: apache_check.stat.exists 
+    
+    - name: Installing a package
+      yum:
+        name: "{{ ap }}"
+        state: latest
+
+    - name: service
+      service:
+        name: "{{ ap }}"
+        state: started
+        enabled: yes
+    
+    - name: Firewall rules
+      firewalld:
+        service: http
+        permanent: yes
+        immediate: yes
+        state: enabled
+      ignore_errors: yes
+
+    - name: index.html file
+      copy:
+        content: Test if playbook worked fine.
+        dest: /var/www/html/index.html
+
+    - name: restart httpd
+      service:
+        name: "{{ ap }}"
+        state: restarted

@@ -1,0 +1,3 @@
+---
+  ntp: chrony
+  uuid: "{{ uuid_result.stdout }}"

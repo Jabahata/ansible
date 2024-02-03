@@ -1,0 +1,112 @@
+---
+- name: Installing NTP server from scratch
+  hosts: ansibleclients
+  become: yes
+  vars: 
+    ntp: "chrony"
+
+  tasks:
+    - name: Updating packages
+      yum:
+        name: '*'
+        state: latest
+      register: update_result
+      notify: clear yum cache
+
+  handlers:
+    - name: clearing yum cache
+      yum:
+        name: '*'
+        state: latest
+
+    - name: printing update results
+      debug:
+      when: update_results.changed
+
+    - name: installing epel-release
+      yum:
+        name: epel-release
+        state: latest
+
+    - name: installing bind-utils
+      yum:
+        name: bind-utils
+        state: latest   
+
+    - name: installing chrony
+      yum:
+        name: "{{ ntp }}"
+        state: latest
+
+    - name: configuring /etc/chrony.conf
+      template:
+        src: chronyconf.j2
+        dest: /etc/chrony.conf
+        backup: yes
+
+    - name: starting and enabling "{{ ntp }}"
+      service:
+        name: chronyd
+        state: started
+        enabled: yes
+
+    - name: gathering facts
+      setup:
+
+    - name: configuring IP address
+      template:
+        src: interface.j2
+        dest: /etc/sysconfig/network-scripts/ifcfg-enp0s3
+        backup: yes
+
+    - name: get current hostname
+      shell: hostname
+      register: current_hostname
+
+    - name: set hostname to ntp-server-205.ziyotek.local
+      hostname:
+        name: ntp-server-205.ziyotek.local
+      when: current_hostname.stdout != "ntp-server-205.ziyotek.local"
+
+    - name: setting firewall rules for ntp
+      firewalld:
+        service: ntp
+        permanent: yes
+        immediate: yes
+        state: enabled
+        ignore_errors: yes
+
+    - name: setting firewall rules for dns
+      firewalld:
+        service: dns
+        permanent: yes
+        immediate: yes
+        state: enabled
+        ignore_errors: yes
+
+    - name: creating user 'adam'
+      user:
+        name: adam
+        state: present
+        create_home: yes
+
+    - name: adding adam to sudoers file
+      lineinfile:
+        path: /etc/sudoers
+        state: present
+        regexp: '^adam'
+        line: 'adam ALL=(ALL) NOPASSWD:ALL'
+        validate: 'visudo -cf %s'
+
+    - name: running chronyc sources command
+      shell: chronyc sources
+      register: chronyc_sources_command
+
+    - name: chronyc sources info
+      debug:
+        var: chronyc_sources_command.stdout
+      when: chronyc_sources_command.stdout != ""
+
+    - name: Reboot if updates were applied
+      reboot:
+      when: update_result.changed

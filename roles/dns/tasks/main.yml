@@ -1,0 +1,122 @@
+---
+- name: mmaking cache
+  command: yum makecache fast
+
+- name: update packages
+  yum:
+    name: '*'
+    state: latest
+
+- name: installing epel-release
+  yum:
+    name: epel-release
+    state: latest
+  
+- name: installing bind, bind-utils
+  yum:
+    name:
+      - bind
+      - bind-utils
+    state: latest
+    update_cache: yes
+
+- name: checking if chrony installed
+  stat:
+    path: /usr/sbin/chronyd
+  register: chrony_check
+
+- name: install chrony if its not installed
+  yum:
+    name: chrony
+    state: present
+  when: not chrony_check.stat.exists
+
+- name: configuring /etc/chrony.conf
+  template:
+    src: chronyconf.j2
+    dest: /etc/chrony.conf
+    backup: yes
+
+- name: starting chronyd
+  service:
+    name: chronyd
+    state: started
+    enabled: yes
+
+- name: getting uuid from network
+  command: nmcli -g uuid con show
+  register: uuid_result
+
+- name: configuring IP address
+  template:
+    src: interface.j2
+    dest: /etc/sysconfig/network-scripts/ifcfg-enp0s3
+    backup: yes
+
+- name: getting current hostname
+  command: hostname
+  register: current_hostname
+
+- name: setting hostname to dns
+  hostname:
+    name: dns-server-55.ziyotek.local
+  when: current_hostname.stdout != "dns-server-55.ziyotek.local"
+
+- name: configuring /etc/named.conf
+  template:
+    src: namedconf.j2
+    dest: /etc/named.conf
+    backup: yes
+
+- name: making ziyotek.flz
+  copy:
+    src: ziyotek.flz
+    dest: /var/named/ziyotek.flz
+    owner: root
+    group: named
+    mode: '0640'
+
+- name: making ziyotek.rlz
+  copy:
+    src: ziyotek.rlz
+    dest: /var/named/ziyotek.rlz
+    owner: root
+    group: named
+    mode: '0640'
+
+- name: starting and enabling named
+  service:
+    name: named
+    state: started
+    enabled: yes
+
+- name: firewall rules for ntp
+  firewalld:
+    service: ntp
+    permanent: yes
+    immediate: yes
+    state: enabled
+
+- name: reloading firewall
+  systemd:
+    name: firewalld
+    state: reloaded
+
+- name: creating user 'adam'
+  user:
+    name: adam
+    state: present
+    create_home: yes
+
+- name: adding adam to sudoers file
+  lineinfile:
+    path: /etc/sudoers
+    state: present
+    regexp: '^adam'
+    line: 'adam ALL=(ALL) NOPASSWD:ALL'
+    validate: 'visudo -cf %s'
+
+- name: restarting network
+  service:
+    name: network
+    state: restarted

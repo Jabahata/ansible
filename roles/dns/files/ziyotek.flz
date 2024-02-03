@@ -1,0 +1,40 @@
+$TTL 1D
+@       IN SOA                          dns-server-55.ziyotek.local. root.dns-server-55.ziyotek.local. (
+                                        2024020301      ; serial
+                                        1D              ; refresh
+                                        1H              ; retry
+                                        1W              ; expire
+                                        3H )            ; minimum
+
+; DNS servers
+                      IN      NS      dns-server-55.ziyotek.local.
+                      IN      NS      dns-server-56.ziyotek.local.
+
+; A records
+ntp-server-50         IN      A       192.168.1.50
+ntp-server-51         IN      A       192.168.1.51
+
+dns-server-55         IN      A       192.168.1.55
+dns-server-56         IN      A       192.168.1.56
+
+web-server-60         IN      A       192.168.1.60
+web-server-61         IN      A       192.168.1.61
+web-load-62           IN      A       192.168.1.62
+
+db-server-65          IN      A       192.168.1.65
+
+docker-server-70      IN      A       192.168.1.70
+
+; CNAME records
+ntp1                  IN      CNAME   ntp-server-50.ziyotek.local.
+ntp2                  IN      CNAME   ntp-server-51.ziyotek.local.
+
+dns1                  IN      CNAME   dns-server-55.ziyotek.local.
+dns2                  IN      CNAME   dns-server-56.ziyotek.local.
+
+web1                  IN      CNAME   web-server-60.ziyotek.local.
+web2                  IN      CNAME   web-server-61.ziyotek.local.
+load                  IN      CNAME   web-load-62.ziyotek.local.
+
+db                    IN      CNAME   db-server-65.ziyotek.local.
+dock                  IN      CNAME   docker-server-70.ziyotek.local.

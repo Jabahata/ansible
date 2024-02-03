@@ -1,0 +1,35 @@
+- name: commenting lines with existing pools
+  lineinfile:
+    path: /etc/chrony.conf
+    regexp: '^server {{ item }}\.centos\.pool\.ntp\.org iburst'
+    line: '#server {{ item }}.centos.pool.ntp.org iburst'
+    backrefs: yes
+  loop: [0, 1, 2, 3]
+
+- name: adding new pools  
+  blockinfile:
+    path: /etc/chrony.conf
+    marker: "# {mark} ANSIBLE MANAGED BLOCK"
+    block: |
+      server 0.us.pool.ntp.org iburst
+      server 1.us.pool.ntp.org iburst
+      server 2.us.pool.ntp.org iburst
+      server 3.us.pool.ntp.org iburst
+    insertafter: '#server 3.centos.pool.ntp.org iburst'
+    create: no
+    state: present
+  when: ansible_check_mode is not defined
+
+- name: changing allowed network
+  lineinfile:
+    path: /etc/chrony.conf
+    regexp: '^#allow 192\.168\.0\.0/16'
+    line: 'allow 192.168.1.0/24'
+    backrefs: yes
+
+- name: changing local statum to 3
+  lifeinline:
+    path: /etc/chrony.conf
+    regexp: '^local stratum 10'
+    line: 'local stratum 3'
+    backrefs: yes

@@ -1,0 +1,7 @@
+---
+- name: Installing NTP server from scratch
+  hosts: ntp
+  become: yes
+
+  roles:
+  - ntp

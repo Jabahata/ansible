@@ -1,0 +1,7 @@
+---
+- name: motd
+  hosts: ansibleclients
+  become: yes
+
+  roles:
+  - motd

@@ -1,0 +1,49 @@
+---
+- name:
+  hosts: ansibleclients
+  become: yes
+
+  tasks:
+
+    - name: check if chrony installed
+      stat:
+        path: /usr/sbin/chronyd
+      register: chrony_check
+
+    - name: installing chrony
+      yum:
+        name: chrony
+        state: latest
+        when: not chrony_check.stat.exists
+
+
+
+    - name: installing chrony
+      yum:
+        name: chrony
+        state: present
+
+
+
+    - name: check if chrony installed
+      command: chronyc tracking
+      register: chrony_check
+      ignore_errors: yes
+
+    - name: installing chrony
+      yum:
+        name: chrony
+        state: present
+      when: chrony_check.rc != 0
+
+    
+
+    - name: Gather the package facts
+      package_facts:
+        manager: "auto"
+
+    - name: Installing chrony
+      yum:
+        name: chrony
+        state: present
+      when: "'chrony' not in ansible_facts.packages"

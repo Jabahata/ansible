@@ -1,0 +1,12 @@
+---
+- name: loop ansible playbook
+  hosts: ansibleclients
+  become: yes
+  vars: 
+    system_owner: info@ziyotek.com
+  tasks:
+
+  - name: template render
+    template:
+      src: /etc/ansible/motd.j2
+      dest: /tmp/dest-config-file.txt

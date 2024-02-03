@@ -1,0 +1,19 @@
+---
+- name: standard ansible playbook
+  hosts: ansibleclients
+  become: yes
+
+  tasks:
+  - name: delete my*
+    shell: rm -rf my*
+    args:
+      chdir: /root
+    notify:
+      - test
+
+  - name: sleep for 2
+    command: sleep 2
+
+  handlers:
+  - name: test
+    ping:

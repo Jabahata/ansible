@@ -1,0 +1,8 @@
+---
+- name: template render
+  template:
+    src: motd2.j2
+    dest: /tmp/dest-config-file.txt
+  
+- name: run task
+  include_tasks: "{{ action }}.yml"
