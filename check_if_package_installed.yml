@@ -14,7 +14,7 @@
       yum:
         name: chrony
         state: latest
-        when: not chrony_check.stat.exists
+      when: not chrony_check.stat.exists
 
 
 
